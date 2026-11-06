@@ -26,14 +26,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Sync or Add Android Platform
-        run: |
-          if [ ! -d "android" ]; then
-            npx --yes @capacitor/cli add android
-          else
-            npx --yes @capacitor/cli sync android
-          fi
-
       - name: Build APK with Gradle
         run: |
           cd android
