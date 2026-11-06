@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laland Express – Delivery</title>
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;font:14px system-ui,sans-serif;background:#f3f4f6;color:#1f2937;padding-bottom:30px}
+header{background:#6d28d9;color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+main{padding:12px;max-width:640px;margin:auto}
+.c{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid #e5e7eb}
+input,select,button{font:inherit;padding:9px;border-radius:8px;border:1px solid #d1d5db;width:100%;margin:3px 0}
+button{background:#6d28d9;color:#fff;border:0;font-weight:700;cursor:pointer}
+button.g{background:#059669}button.r{background:#dc2626}button.s{background:#e5e7eb;color:#374151}
+.row{display:flex;gap:6px}.row>*{flex:1}.sp{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.t{display:flex;gap:6px;margin-bottom:10px}.t button{background:#e5e7eb;color:#374151}.t button.on{background:#6d28d9;color:#fff}
+.b{display:inline-block;padding:2px 8px;border-radius:99px;background:#ede9fe;color:#5b21b6;font-size:11px;font-weight:700}
+.m{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.m>div{background:#fff;border-radius:16px;padding:16px;width:100%;max-width:380px}
+#offer{background:#065f46;color:#fff;text-align:center;z-index:30}#offer>div{background:none}
+#offer .ph{font-size:44px;animation:p 1s infinite}@keyframes p{50%{transform:scale(1.2)}}
+small{color:#6b7280}
+.t button{padding:9px 4px;font-size:12px}label{display:block;margin-top:4px}.m>div{max-height:92vh;overflow:auto}</style><script>function __eb(m){var d=document.getElementById('eb');if(!d){d=document.createElement('div');d.id='eb';d.style.cssText='background:#dc2626;color:#fff;padding:8px;font:12px monospace;white-space:pre-wrap';document.body.insertBefore(d,document.body.firstChild)}d.textContent+=m+'\n'}
+addEventListener('error',function(e){__eb((e.message||'error')+' @'+String(e.filename||'').split('/').pop()+':'+e.lineno)});addEventListener('unhandledrejection',function(e){__eb('Promise: '+(e.reason&&e.reason.message||e.reason))})</script></head><body>
+<header id="hd" hidden><b id="who"></b><button class="s" style="width:auto" onclick="logout()">লগআউট</button></header>
+<main>
+<section id="login" class="c"><h3>Laland Express লগইন</h3>
+<form id="lf"><input id="u" placeholder="রাইডার: মোবাইল নম্বর | অ্যাডমিন: ইমেইল" required>
+<input id="p" type="password" placeholder="পাসওয়ার্ড" required><button>লগইন</button></form></section>
+
+<section id="rider" hidden>
+<div class="row"><div class="c">ক্যাশ জমা বাকি<h3 id="cash">৳0</h3></div><div class="c">আয় (কমিশন)<h3 id="earn">৳0</h3></div></div>
+<button class="g" onclick="openStl()">ক্যাশ জমা দিন</button>
+<div class="t" style="margin-top:10px"><button id="rt-act" class="on" onclick="rTab('act')">চলমান</button><button id="rt-done" onclick="rTab('done')">সম্পন্ন</button><button id="rt-h" onclick="rTab('h')">জমার ইতিহাস</button><button id="rt-p" onclick="rTab('p')">প্রোফাইল</button></div>
+<div id="dF" class="c" hidden><div class="row"><input id="dm" type="month" onchange="dmC()"><input id="dd" type="date" onchange="ddC()"></div><select id="ds" onchange="renderR()"></select><button class="g" onclick="expD()">📥 এক্সেল এক্সপোর্ট</button></div>
+<div id="hF" class="c" hidden><div class="row"><input id="hm2" type="month" onchange="renderR()"><select id="hs2" onchange="renderR()"></select></div><button class="g" onclick="expH()">📥 এক্সেল এক্সপোর্ট</button></div>
+<div id="rlist"></div></section>
+
+<section id="admin" hidden>
+<div class="t"><button id="at-o" class="on" onclick="aTab('o')">অর্ডার</button><button id="at-r" onclick="aTab('r')">রাইডার</button><button id="at-s" onclick="aTab('s')">ক্যাশ জমা<span id="pc"></span></button></div>
+<div id="aOrders"><select id="of" onchange="renderA()"><option value="pn">Pending</option><option value="pr">Processing</option><option value="ow">On the Way</option><option value="dn">Delivered</option><option value="cx">Cancelled</option><option value="rt">Returned</option><option value="ALL">সব</option></select><div id="olist"></div></div>
+<div id="aStl" hidden><b>অপেক্ষমাণ অনুরোধ</b><div id="stP"></div><div class="c"><b>হিস্ট্রি</b><div class="row"><input id="hm" type="month" onchange="renderS()"><select id="hs" onchange="renderS()"><option value="ALL">সব</option><option value="Approved">অনুমোদিত</option><option value="Rejected">বাতিল</option></select></div><input id="hq" placeholder="রাইডারের নাম/নম্বর/ইনভয়েস" oninput="renderS()"><button class="g" onclick="expS()">📥 এক্সেল এক্সপোর্ট</button></div><div id="stH"></div></div>
+<div id="aRiders" hidden>
+<div class="c"><b>নতুন রাইডার</b><input id="rn" placeholder="নাম"><input id="rp" placeholder="মোবাইল (01XXXXXXXXX)"><input id="rw" type="password" placeholder="পাসওয়ার্ড (৬+)"><input id="ra" placeholder="এলাকা"><input id="rv" placeholder="বাহন (বাইক/সাইকেল)">
+<div class="row"><input id="rs" type="number" placeholder="বেতন"><input id="rc" type="number" placeholder="কমিশন/ডেলিভারি" value="30"></div><button onclick="addRider()">রাইডার তৈরি করুন</button></div>
+<div id="rlistA"></div></div></section>
+</main>
+
+<div id="offer" class="m" hidden><div><div class="ph">📞</div><h2>নতুন ডেলিভারি অফার</h2><div id="offT"></div><h1 id="cd">60</h1>
+<button class="g" style="font-size:18px;padding:14px" onclick="respond(true)">✅ রিসিভ করুন</button><button class="r" onclick="respond(false)">❌ বাতিল</button></div></div>
+<div id="pay" class="m" hidden><div><h3>ডেলিভারি সম্পন্ন</h3><p id="payAmt"></p><select id="pm"><option>Cash</option><option>bKash</option><option>Nagad</option></select><input id="trx" placeholder="Trx ID (অনলাইন হলে)"><button class="g" onclick="donePay()">নিশ্চিত করুন</button><button class="s" onclick="pay.hidden=true">বন্ধ</button></div></div>
+<div id="stl" class="m" hidden><div><h3>ক্যাশ জমা (ইনভয়েস অনুযায়ী)</h3><small id="sCb"></small><div id="sl"></div><div class="sp" style="margin-top:6px"><b>মোট জমা</b><b id="sT">৳0</b></div><select id="sm"><option>Cash</option><option>bKash</option><option>Nagad</option></select><input id="sr" placeholder="Trx ID/নোট"><button class="g" onclick="sendStl()">জমা পাঠান</button><button class="s" onclick="stl.hidden=true">বন্ধ</button></div></div>
+<div id="rpm" class="m" hidden><div style="max-width:460px"><div id="rpB"></div><button class="s" onclick="rpm.hidden=true">বন্ধ</button></div></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,query,where,increment,runTransaction,writeBatch} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyCP0heHxeSJezxkAyvYAkGdFenY4ErhV0U",authDomain:"laland-express.firebaseapp.com",projectId:"laland-express",storageBucket:"laland-express.firebasestorage.app",messagingSenderId:"315462688826",appId:"1:315462688826:web:a6b033e1ce664071201503"};
+const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);
+const $=i=>document.getElementById(i),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const FIN=['Delivered','Completed','Cancelled','Returned'];
+let me,orders=[],riders=[],stls=[],allS=[],busyF=0,unsub=[],rt='act',offerId,cdT,ringT,ctx,payId,isAd=false;
+const iso=()=>new Date().toISOString();
+
+// ---- shared helpers
+const pad=n=>String(n).padStart(2,'0'),ld=d=>{const x=d?new Date(d):0;return x&&!isNaN(x)?x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate()):''};
+const fdt=d=>d?new Date(d).toLocaleString():'';
+const grp=o=>o.status=='Completed'?'Delivered':o.status;
+const od=o=>(o.status=='Cancelled'?o.cancelledAt:o.status=='Returned'?o.returnedAt:o.deliveredAt)||o.createdAt;
+const invNo=s=>(s.invoices||[]).map(i=>i.no).join(', ');
+const cn=(a,s)=>a.filter(x=>x.status==s).length,cg=(a,s)=>a.filter(x=>grp(x)==s).length;
+const stT=s=>s=='Approved'?'অনুমোদিত':s=='Rejected'?'বাতিল':'অপেক্ষায়';
+const fill=(id,items)=>{const el=$(id),c=el.value||'ALL';el.innerHTML=items.map(([v,l,n])=>`<option value="${v}">${l} (${n})</option>`).join('');el.value=c};
+// পুরনো জমা-হয়ে-যাওয়া ডেলিভারি unpaid তালিকায় না আনতে এখানে তারিখ দিন, যেমন '2026-11-05'
+const INV_FROM='';
+function xl(name,head,rows){if(!rows.length)return alert('ডেটা নেই');const go=()=>{
+if(window.XLSX){const ws=XLSX.utils.aoa_to_sheet([head,...rows]);ws['!cols']=head.map(h=>({wch:Math.max(14,String(h).length+4)}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Data');XLSX.writeFile(wb,name+'.xlsx');return}
+const q=v=>{v=String(v??'');if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
+const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+[head,...rows].map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';a.click()};
+if(window.XLSX)return go();const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';sc.onload=go;sc.onerror=go;document.head.appendChild(sc)}
+
+
+// ---- sound/vibration
+document.addEventListener('click',()=>{const A=window.AudioContext||window.webkitAudioContext;ctx=ctx||new A();ctx.resume()});
+function beep(){if(ctx){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=880;g.gain.value=.3;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4)}navigator.vibrate&&navigator.vibrate([400,200,400])}
+const startRing=()=>{stopRing();beep();ringT=setInterval(beep,1500)},stopRing=()=>{clearInterval(ringT);navigator.vibrate&&navigator.vibrate(0)};
+
+// ---- auth + role routing
+$('lf').onsubmit=async e=>{e.preventDefault();const v=$('u').value.trim(),em=v.includes('@')?v:v.replace(/\D/g,'')+'@lalandrider.com';
+try{await signInWithEmailAndPassword(auth,em,$('p').value)}catch(x){alert('নম্বর/ইমেইল বা পাসওয়ার্ড ভুল')}};
+window.logout=()=>signOut(auth);
+onAuthStateChanged(auth,async u=>{
+unsub.forEach(f=>f());unsub=[];hideOffer();['login','rider','admin'].forEach(i=>$(i).hidden=true);$('hd').hidden=!u;
+if(!u){$('login').hidden=false;return}
+try{if((await getDoc(doc(db,'admins',u.uid))).exists())startAdmin();
+else{const s=await getDoc(doc(db,'riders',u.uid));if(!s.exists())throw 0;me={id:s.id,...s.data()};if(me.status=='Inactive')throw 0;startRider()}}
+catch(x){alert('এই অ্যাকাউন্টের অনুমতি নেই');signOut(auth)}});
+const snap=(q,f)=>unsub.push(onSnapshot(q,f,e=>console.error(e)));
+const list=s=>s.docs.map(d=>({id:d.id,...d.data()}));
+
+// ================= RIDER =================
+function startRider(){isAd=false;$('rider').hidden=false;$('who').textContent='🏍 '+me.name;
+snap(doc(db,'riders',me.id),s=>{me={id:s.id,...s.data()};$('cash').textContent='৳'+(me.cashBalance||0);$('earn').textContent='৳'+(me.earningsBalance||0);renderR()});
+snap(query(collection(db,'orders'),where('riderPhone','==',me.phone)),s=>{orders=list(s);renderR();checkOffer()});
+snap(query(collection(db,'cash_settlements'),where('riderPhone','==',me.phone)),s=>{stls=list(s).sort((a,b)=>(b.createdAt||'')<(a.createdAt||'')?-1:1);renderR()})}
+window.rTab=t=>{rt=t;['act','done','h','p'].forEach(x=>$('rt-'+x).className=x==t?'on':'');renderR()};
+window.dmC=()=>{$('dd').value='';renderR()};window.ddC=()=>{$('dm').value='';renderR()};
+const dBase=()=>{const m=$('dm').value,d=$('dd').value;return orders.filter(o=>['Delivered','Completed','Returned','Cancelled'].includes(o.status)&&(!m||ld(od(o)).startsWith(m))&&(!d||ld(od(o))==d)).sort((a,b)=>od(b)>od(a)?1:-1)};
+const dList=()=>{const B=dBase(),c=$('ds').value||'ALL';return c=='ALL'?B:B.filter(o=>grp(o)==c)};
+const hBase=()=>{const m=$('hm2').value;return stls.filter(s=>!m||ld(s.createdAt).startsWith(m))};
+const hList=()=>{const B=hBase(),c=$('hs2').value||'ALL';return c=='ALL'?B:B.filter(s=>s.status==c)};
+const rCard=(o,act)=>`<div class="c"><div class="sp"><b>${E(o.orderId||o.id)}</b><span class="b">${E(o.status)}</span></div>
+<div>👤 ${E(o.userName)} · <a href="tel:${E(o.userPhone)}">📞 ${E(o.userPhone)}</a></div>
+<div><a href="https://maps.google.com/?q=${encodeURIComponent(o.address||'')}" target="_blank">📍 ${E(o.address)}</a></div>
+${detailsHtml(o)}
+<div class="sp"><b>৳${o.totalAmount||0}</b>${act?`<span style="display:flex;gap:6px"><button class="r" style="width:auto" onclick="retO('${o.id}')">ফেরত</button><button class="g" style="width:auto" onclick="openPay('${o.id}')">ডেলিভারি হয়েছে</button></span>`:`<span>${E(grp(o)=='Delivered'?o.paymentMethod:o.returnReason)}</span>`}</div>${act?'':`<small>${E(fdt(od(o)))}</small>`}</div>`;
+function renderR(){const c=$('rlist');$('dF').hidden=rt!='done';$('hF').hidden=rt!='h';
+if(rt=='p'){c.innerHTML=`<div class="c">${profHtml(me,false)}</div>`;return}
+if(rt=='h'){const B=hBase();fill('hs2',[['ALL','সব',B.length],['Pending','অপেক্ষায়',cn(B,'Pending')],['Approved','অনুমোদিত',cn(B,'Approved')],['Rejected','বাতিল',cn(B,'Rejected')]]);
+c.innerHTML=hList().map(s=>`<div class="c"><div class="sp"><b>৳${N(s.amount)}</b><span class="b">${stT(s.status)}</span></div><small>${E(s.method)} · ${E(s.trxRef)||'—'} · ${E(fdt(s.createdAt))}</small><div>🧾 ${E(invNo(s))||'<small>পুরনো জমা (ইনভয়েস ছাড়া)</small>'}</div></div>`).join('')||'<small>কিছু নেই</small>';return}
+if(rt=='done'){const B=dBase();fill('ds',[['ALL','সব',B.length],['Delivered','Delivered',cg(B,'Delivered')],['Returned','Returned',cg(B,'Returned')],['Cancelled','Cancelled',cg(B,'Cancelled')]]);
+c.innerHTML=dList().map(o=>rCard(o,0)).join('')||'<small>কোনো অর্ডার নেই</small>';return}
+c.innerHTML=orders.filter(o=>o.offerState!='Offered'&&!FIN.includes(o.status)).map(o=>rCard(o,1)).join('')||'<small>কোনো অর্ডার নেই</small>'}
+
+
+function checkOffer(){const o=orders.find(x=>x.offerState=='Offered'&&!FIN.includes(x.status));if(!o){hideOffer();return}
+if(offerId==o.id)return;offerId=o.id;
+$('offT').innerHTML=`<p><b>${E(o.orderId||o.id)}</b> · ৳${o.totalAmount||0}</p><p>📍 ${E(o.address)}</p><p>👤 ${E(o.userName)}</p>`;
+$('offer').hidden=false;startRing();let t=60;$('cd').textContent=t;clearInterval(cdT);
+cdT=setInterval(()=>{$('cd').textContent=--t;if(t<=0)respond(false)},1000)}
+function hideOffer(){offerId=null;$('offer').hidden=true;stopRing();clearInterval(cdT)}
+window.respond=async ok=>{const id=offerId;hideOffer();if(!id)return;
+try{await updateDoc(doc(db,'orders',id),ok?{offerState:'Accepted',acceptedAt:iso()}:{status:'Processing',riderPhone:'',riderId:'',riderName:'',assignedRiderId:'',assignedRiderName:'',offerState:'',offeredAt:''})}catch(e){alert(e.message)}};
+
+window.openPay=id=>{payId=id;$('payAmt').textContent='৳'+orders.find(o=>o.id==id).totalAmount;$('pay').hidden=false};
+window.donePay=async()=>{if(busyF)return;const o=orders.find(x=>x.id==payId);if(!o||FIN.includes(o.status))return;
+const rd=isAd?riders.find(r=>r.phone==o.riderPhone):me,m=$('pm').value,amt=Number(o.totalAmount||0),com=rd?(rd.deliveryCommission==null?30:Number(rd.deliveryCommission)||0):0;busyF=1;
+try{const b=writeBatch(db);b.update(doc(db,'orders',payId),{status:'Delivered',paymentMethod:m,paymentTrxId:$('trx').value.trim(),deliveredAt:iso(),...(isAd?{deliveredBy:'admin'}:{})});
+if(rd)b.update(doc(db,'riders',rd.id),{...(m=='Cash'?{cashBalance:increment(amt)}:{}),earningsBalance:increment(com)});
+await b.commit();$('pay').hidden=true;$('trx').value='';alert('সম্পন্ন!'+(rd?' কমিশন ৳'+com:''))}catch(e){alert('ব্যর্থ: '+e.message)}busyF=0};
+
+window.retO=async id=>{const r=prompt('ফেরতের কারণ লিখুন');if(r===null)return;if(!r.trim())return alert('কারণ লিখুন');if(!confirm('অর্ডারটি ফেরত (Returned) দিচ্ছেন?'))return;
+try{await updateDoc(doc(db,'orders',id),{status:'Returned',returnReason:r.trim().slice(0,200),returnedAt:iso()})}catch(e){alert(e.message)}};
+
+
+const unpaid=()=>{const u=new Set();stls.forEach(x=>x.status!='Rejected'&&(x.invoices||[]).forEach(i=>u.add(i.id)));
+return orders.filter(o=>o.status=='Delivered'&&o.paymentMethod=='Cash'&&!o.cashSettled&&!u.has(o.id)&&(!INV_FROM||ld(o.deliveredAt)>=INV_FROM)).sort((a,b)=>(a.deliveredAt||'')<(b.deliveredAt||'')?-1:1)};
+window.openStl=()=>{const u=unpaid();$('sCb').textContent='ক্যাশ বাকি: ৳'+N(me.cashBalance);
+$('sl').innerHTML=u.map(o=>`<label class="sp" style="border-bottom:1px dashed #e5e7eb;padding:4px 0"><span><input type="checkbox" class="ck" value="${E(o.id)}" data-a="${N(o.totalAmount)}" onchange="sumS()" style="width:auto;margin-right:6px">${E(o.orderId||o.id)}<br><small>${E(fdt(o.deliveredAt))}</small></span><b>${tk(o.totalAmount)}</b></label>`).join('')||'<small>জমা দেওয়ার মতো কোনো Unpaid ইনভয়েস নেই</small>';sumS();$('stl').hidden=false};
+window.sumS=()=>{$('sT').textContent=tk([...document.querySelectorAll('#sl .ck:checked')].reduce((s,x)=>s+N(x.dataset.a),0))};
+window.sendStl=async()=>{const ck=[...document.querySelectorAll('#sl .ck:checked')];if(!ck.length)return alert('কমপক্ষে একটি Unpaid ইনভয়েস সিলেক্ট করুন');
+const u=unpaid(),inv=ck.map(x=>u.find(o=>o.id==x.value)).filter(Boolean);if(inv.length!=ck.length)return alert('তালিকা বদলে গেছে, আবার চেষ্টা করুন');
+const a=inv.reduce((s,o)=>s+N(o.totalAmount),0),c=N(me.cashBalance);if(!(a>0)||a>c)return alert('ক্যাশ বাকি ৳'+c+', নির্বাচিত ইনভয়েস ৳'+a+' — মিলছে না');
+if(busyF)return;busyF=1;setTimeout(()=>busyF=0,3000);
+try{await addDoc(collection(db,'cash_settlements'),{riderId:me.id,riderName:me.name,riderPhone:me.phone,amount:a,method:$('sm').value,trxRef:$('sr').value.trim(),invoices:inv.map(o=>({id:o.id,no:String(o.orderId||o.id),amount:N(o.totalAmount)})),status:'Pending',createdAt:iso()});$('stl').hidden=true;$('sr').value='';alert('অনুরোধ পাঠানো হয়েছে')}catch(e){alert(e.message)}};
+window.expD=()=>xl('delivered-'+ld(new Date()),['Invoice','Customer','Phone','Address','Amount','Status','Payment','Trx ID','Return reason','Date'],dList().map(o=>[String(o.orderId||o.id),o.userName||'',o.userPhone||'',o.address||'',N(o.totalAmount),grp(o),o.paymentMethod||'',o.paymentTrxId||'',o.returnReason||'',fdt(od(o))]));
+window.expH=()=>xl('deposits-'+ld(new Date()),['Date','Invoice No','Amount','Method','Trx/Note','Status','Decision date'],hList().map(s=>[fdt(s.createdAt),invNo(s),N(s.amount),s.method||'',s.trxRef||'',s.status,fdt(s.approvedAt||s.rejectedAt)]));
+
+// ================= ADMIN =================
+function startAdmin(){isAd=true;$('admin').hidden=false;$('who').textContent='👑 অ্যাডমিন';
+snap(collection(db,'orders'),s=>{orders=list(s).sort((a,b)=>(b.createdAt||'')<(a.createdAt||'')?-1:1);renderA()});
+snap(collection(db,'riders'),s=>{riders=list(s);renderA()});
+snap(collection(db,'cash_settlements'),s=>{allS=list(s).sort((a,b)=>(b.createdAt||'')<(a.createdAt||'')?-1:1);renderS()})}
+window.aTab=t=>{['o','r','s'].forEach(x=>{$({o:'aOrders',r:'aRiders',s:'aStl'}[x]).hidden=x!=t;$('at-'+x).className=x==t?'on':''})};
+const busy=r=>orders.filter(o=>o.riderPhone==r.phone&&!FIN.includes(o.status)).length;
+const FM={pn:'Pending',pr:'Processing',ow:'On the Way',dn:'Delivered',cx:'Cancelled',rt:'Returned'};
+const stOf=o=>({Offered:'On the Way','Out for Delivery':'On the Way',Completed:'Delivered'})[o.status]||o.status||'Pending';
+const offH=o=>o.offerState=='Offered'?'<small>⏳ রাইডারের উত্তরের অপেক্ষায়</small>':o.offerState=='Accepted'?'<small>✅ রাইডার রিসিভ করেছে</small>':'';
+function actH(o){const s=stOf(o);if(FIN.includes(o.status)||['Delivered','Cancelled','Returned'].includes(s))return'';
+const sel=`<select id="s_${o.id}">${riders.filter(r=>r.status!='Inactive').map(r=>`<option value="${r.id}" ${r.id==o.riderId?'selected':''}>${E(r.name)} (${busy(r)?'ব্যস্ত '+busy(r):'ফ্রি'})</option>`).join('')}</select>`,
+cx=`<button class="r" onclick="cancelO('${o.id}')">❌ বাতিল</button>`;
+if(s=='Pending')return`<div class="row"><button onclick="setSt('${o.id}','Processing')">▶ Processing করুন</button>${cx}</div>`;
+if(s=='Processing')return`<div class="row">${sel}<button style="flex:0 0 120px" onclick="assign('${o.id}')">অ্যাসাইন → On the Way</button></div><div class="row">${cx}</div>`;
+return`<div class="row">${sel}<button style="flex:0 0 90px" onclick="assign('${o.id}')">রাইডার বদলান</button></div><div class="row"><button class="g" onclick="openPay('${o.id}')">✅ Delivered</button><button class="s" onclick="adRet('${o.id}')">↩ Returned</button>${cx}</div>`}
+window.renderA=()=>{const keep={};document.querySelectorAll('#olist select').forEach(x=>keep[x.id]=x.value);
+fill('of',Object.entries(FM).map(([k,v])=>[k,v,orders.filter(o=>stOf(o)==v).length]).concat([['ALL','সব',orders.length]]));
+const f=$('of').value,l=orders.filter(o=>f=='ALL'||stOf(o)==FM[f]).slice(0,60);
+$('olist').innerHTML=l.map(o=>`<div class="c"><div class="sp"><b>${E(o.orderId||o.id)}</b><span class="b">${E(stOf(o))}</span></div>
+<div>👤 ${E(o.userName)} · ${E(o.userPhone)}</div><div>📍 ${E(o.address)}</div><div class="sp"><b>৳${o.totalAmount||0}</b><small>${o.riderName?'🏍 '+E(o.riderName)+(o.riderPhone?' · '+E(o.riderPhone):''):''}</small></div>${offH(o)}
+${detailsHtml(o)}
+${actH(o)}</div>`).join('')||'<small>কোনো অর্ডার নেই</small>';
+Object.entries(keep).forEach(([k,v])=>{const e=$(k);if(e)e.value=v});
+$('rlistA').innerHTML=riders.map(r=>`<div class="c"><div class="sp"><b>${E(r.name)}</b><span class="b">${r.status=='Inactive'?'নিষ্ক্রিয়':busy(r)?'ব্যস্ত ('+busy(r)+')':'ফ্রি'}</span></div>
+<small>${E(r.phone)} · ${E(r.area)} · ${E(r.vehicle)}</small><div>ক্যাশ বাকি ৳${r.cashBalance||0} · আয় ৳${r.earningsBalance||0}</div><small>বেতন ৳${r.fixedSalary||0} · কমিশন ৳${r.deliveryCommission||0}</small>
+<div class="row"><button onclick="viewR('${r.id}')">প্রোফাইল</button><button class="s" onclick="editR('${r.id}')">এডিট</button><button class="${r.status=='Inactive'?'g':'r'}" onclick="toggleR('${r.id}')">${r.status=='Inactive'?'সক্রিয়':'নিষ্ক্রিয়'}</button></div></div>`).join('')};
+window.assign=async id=>{const r=riders.find(x=>x.id==$('s_'+id).value);if(!r)return;
+try{await updateDoc(doc(db,'orders',id),{status:'On the Way',riderId:r.id,riderPhone:r.phone,riderName:r.name,assignedRiderId:r.id,assignedRiderName:r.name,offerState:'Offered',offeredAt:iso(),onTheWayAt:iso()})}catch(e){alert(e.message)}};
+window.addRider=async()=>{const n=$('rn').value.trim(),w=$('rw').value;let p=$('rp').value.replace(/\D/g,'');if(p.startsWith('880'))p=p.slice(2);if(p.length==10&&p[0]=='1')p='0'+p;
+if(!n||!/^01[3-9]\d{8}$/.test(p)||w.length<6)return alert('নাম, সঠিক নম্বর (01XXXXXXXXX) ও ৬+ পাসওয়ার্ড দিন');
+if(riders.some(r=>r.phone==p))return alert('এই নম্বরে রাইডার আছে');
+const sa=getAuth(initializeApp(cfg,'sec'+Date.now())),em=p+'@lalandrider.com';
+try{const u=await createUserWithEmailAndPassword(sa,em,w);
+await setDoc(doc(db,'riders',u.user.uid),{uid:u.user.uid,name:n,phone:p,email:em,area:$('ra').value.trim(),vehicle:$('rv').value.trim(),fixedSalary:Number($('rs').value)||0,deliveryCommission:Number($('rc').value)||30,cashBalance:0,earningsBalance:0,status:'Active',createdAt:iso()});
+await signOut(sa);['rn','rp','rw','ra','rv','rs'].forEach(i=>$(i).value='');alert('রাইডার তৈরি হয়েছে')}catch(e){alert(e.message)}};
+// ---- রাইডার প্রোফাইল ও এডিট
+const RF=[['name','নাম'],['altPhone','বিকল্প মোবাইল'],['nid','NID / জন্মনিবন্ধন নম্বর'],['address','বর্তমান ঠিকানা'],['area','কর্ম এলাকা'],['vehicle','বাহন (বাইক/সাইকেল)'],['vehicleNo','বাহনের নম্বর'],['license','ড্রাইভিং লাইসেন্স নম্বর'],['bloodGroup','রক্তের গ্রুপ'],['emergencyName','জরুরি যোগাযোগের নাম'],['emergencyPhone','জরুরি যোগাযোগের নম্বর'],['joinDate','যোগদানের তারিখ','date'],['fixedSalary','মাসিক বেতন','number'],['deliveryCommission','কমিশন/ডেলিভারি','number'],['note','অ্যাডমিন নোট']];
+function profHtml(r,adm){const my=orders.filter(o=>o.riderPhone==r.phone),dep=(adm?allS:stls).filter(s=>s.riderPhone==r.phone&&s.status=='Approved').reduce((a,s)=>a+N(s.amount),0),
+K=(t,n)=>`<div class="c" style="margin:0;text-align:center;padding:6px"><small>${t}</small><h3 style="margin:2px 0">${n}</h3></div>`,
+Ln=(k,v)=>`<div class="sp" style="border-bottom:1px dashed #e5e7eb;padding:4px 0"><small>${k}</small><b style="text-align:right">${E(v)||'—'}</b></div>`;
+return `<h3 style="margin:0 0 6px">🏍 ${E(r.name)} <span class="b">${r.status=='Inactive'?'নিষ্ক্রিয়':'সক্রিয়'}</span></h3>
+<div class="row" style="margin:6px 0">${K('Delivered',cg(my,'Delivered'))}${K('Returned',cg(my,'Returned'))}${K('Cancelled',cg(my,'Cancelled'))}${K('চলমান',my.filter(o=>o.offerState!='Offered'&&!FIN.includes(o.status)).length)}</div>`
++Ln('মোবাইল (লগইন আইডি)',r.phone)+Ln('বিকল্প মোবাইল',r.altPhone)+Ln('NID / জন্মনিবন্ধন',r.nid)+Ln('ঠিকানা',r.address)+Ln('কর্ম এলাকা',r.area)+Ln('বাহন',r.vehicle)+Ln('বাহনের নম্বর',r.vehicleNo)+Ln('লাইসেন্স নম্বর',r.license)+Ln('রক্তের গ্রুপ',r.bloodGroup)
++Ln('জরুরি যোগাযোগ',[r.emergencyName,r.emergencyPhone].filter(Boolean).join(' · '))+Ln('যোগদানের তারিখ',r.joinDate||ld(r.createdAt))+Ln('মাসিক বেতন',tk(r.fixedSalary))+Ln('কমিশন/ডেলিভারি',tk(r.deliveryCommission))
++Ln('ক্যাশ জমা বাকি',tk(r.cashBalance))+Ln('মোট আয় (কমিশন)',tk(r.earningsBalance))+Ln('মোট জমা (অনুমোদিত)',tk(dep))+(adm?Ln('অ্যাডমিন নোট',r.note):'')}
+window.viewR=id=>{const r=riders.find(x=>x.id==id);if(!r)return;$('rpB').innerHTML=profHtml(r,true)+`<button onclick="editR('${r.id}')">✏️ এডিট করুন</button>`;$('rpm').hidden=false};
+window.editR=id=>{const r=riders.find(x=>x.id==id);if(!r)return;
+$('rpB').innerHTML=`<h3 style="margin:0">✏️ ${E(r.name)}</h3><small>মোবাইল (লগইন আইডি): ${E(r.phone)} — অর্ডার ও লগইনের সাথে যুক্ত, তাই বদলানো যাবে না</small>`
++RF.map(([k,l,t])=>`<label><small>${l}</small><input id="e_${k}" type="${t||'text'}" value="${E(r[k]??'')}"></label>`).join('')
++`<label><small>স্ট্যাটাস</small><select id="e_status"><option value="Active" ${r.status!='Inactive'?'selected':''}>সক্রিয়</option><option value="Inactive" ${r.status=='Inactive'?'selected':''}>নিষ্ক্রিয়</option></select></label><button class="g" onclick="saveR('${r.id}')">সেভ করুন</button>`;$('rpm').hidden=false};
+window.saveR=async id=>{const o={};for(const [k,,t] of RF){const v=$('e_'+k).value.trim();o[k]=t=='number'?(Number(v)||0):v}
+if(!o.name)return alert('নাম দিন');o.status=$('e_status').value;try{await updateDoc(doc(db,'riders',id),o);$('rpm').hidden=true;alert('সেভ হয়েছে')}catch(e){alert(e.message)}};
+window.toggleR=async id=>{const r=riders.find(x=>x.id==id),n=r.status=='Inactive'?'Active':'Inactive';if(confirm((n=='Inactive'?'নিষ্ক্রিয়':'সক্রিয়')+' করবেন? '+r.name))try{await updateDoc(doc(db,'riders',id),{status:n})}catch(e){alert(e.message)}};
+
+// ---- ক্যাশ জমা (অ্যাডমিন)
+const hBaseA=()=>{const m=$('hm').value,q=$('hq').value.trim().toLowerCase();return allS.filter(s=>s.status!='Pending'&&(!m||ld(s.createdAt).startsWith(m))&&(!q||((s.riderName||'')+(s.riderPhone||'')+invNo(s)).toLowerCase().includes(q)))};
+const histA=()=>{const B=hBaseA(),c=$('hs').value||'ALL';return c=='ALL'?B:B.filter(s=>s.status==c)};
+window.renderS=()=>{const P=allS.filter(s=>s.status=='Pending'),B=hBaseA();$('pc').textContent=P.length?' ('+P.length+')':'';
+fill('hs',[['ALL','সব',B.length],['Approved','অনুমোদিত',cn(B,'Approved')],['Rejected','বাতিল',cn(B,'Rejected')]]);
+$('stP').innerHTML=P.map(s=>`<div class="c"><div class="sp"><b>${E(s.riderName)}</b><span class="b">${E(s.method)}</span></div><small>${E(s.riderPhone)} · ${E(s.trxRef)||'N/A'} · ${E(fdt(s.createdAt))}</small><div>🧾 ${E(invNo(s))||'ইনভয়েস ছাড়া'}</div><div><b>${tk(s.amount)}</b></div><div class="row"><button class="g" onclick="apvS('${s.id}')">অনুমোদন</button><button class="r" onclick="rejS('${s.id}')">বাতিল</button></div></div>`).join('')||'<small>কোনো অপেক্ষমাণ অনুরোধ নেই</small>';
+$('stH').innerHTML=histA().map(s=>`<div class="c"><div class="sp"><span><b>${E(s.riderName)}</b> <small>${E(s.method)} · ${E(s.trxRef)} · ${E(fdt(s.approvedAt||s.rejectedAt||s.createdAt))}</small></span><span><b>${tk(s.amount)}</b> <span class="b">${stT(s.status)}</span></span></div><small>🧾 ${E(invNo(s))||'ইনভয়েস ছাড়া'}</small></div>`).join('')||'<small>কিছু নেই</small>'};
+window.apvS=async id=>{if(!confirm('অনুমোদন করবেন? রাইডারের ক্যাশ বাকি থেকে টাকা কাটা হবে।'))return;
+try{await runTransaction(db,async tx=>{const sr=doc(db,'cash_settlements',id),s=await tx.get(sr);if(!s.exists()||s.data().status!='Pending')throw new Error('এটি আর অপেক্ষমাণ নেই');
+const d=s.data(),inv=d.invoices||[],rr=doc(db,'riders',d.riderId),r=await tx.get(rr),a=Number(d.amount),c=Number((r.data()||{}).cashBalance||0),os=[];
+if(new Set(inv.map(i=>i.id)).size!=inv.length)throw new Error('একই ইনভয়েস দুইবার আছে');
+for(const i of inv)os.push(await tx.get(doc(db,'orders',i.id)));
+if(inv.length){let t=0;os.forEach((o,k)=>{const x=o.data();if(!o.exists()||x.riderPhone!=d.riderPhone||x.status!='Delivered'||x.paymentMethod!='Cash'||x.cashSettled)throw new Error('ইনভয়েস '+inv[k].no+' জমাযোগ্য নয় (আগে জমা হয়েছে বা ক্যাশ নয়)');t+=N(x.totalAmount)});
+if(Math.abs(t-a)>.5)throw new Error('ইনভয়েসের মোট ৳'+t+', অনুরোধ ৳'+a+' — মিলছে না')}
+if(!(a>0)||a>c)throw new Error('রাইডারের ক্যাশ বাকি ৳'+c+', অনুরোধ ৳'+a);
+tx.update(sr,{status:'Approved',approvedAt:iso()});tx.update(rr,{cashBalance:c-a});os.forEach(o=>tx.update(o.ref,{cashSettled:true,settlementId:id}))});alert('অনুমোদিত')}catch(e){alert(e.message)}};
+window.rejS=async id=>{if(!confirm('বাতিল করবেন? ইনভয়েসগুলো আবার Unpaid হয়ে যাবে।'))return;try{await runTransaction(db,async tx=>{const sr=doc(db,'cash_settlements',id),s=await tx.get(sr);if(!s.exists()||s.data().status!='Pending')throw new Error('এটি আর অপেক্ষমাণ নেই');tx.update(sr,{status:'Rejected',rejectedAt:iso()})})}catch(e){alert(e.message)}};
+window.expS=()=>xl('settlements-'+ld(new Date()),['Rider','Phone','Invoice No','Amount','Method','Trx/Note','Status','Request date','Decision date'],histA().map(s=>[s.riderName||'',s.riderPhone||'',invNo(s),N(s.amount),s.method||'',s.trxRef||'',s.status,fdt(s.createdAt),fdt(s.approvedAt||s.rejectedAt)]));
+
+
+// ---- অর্ডার বিস্তারিত ও মেমো প্রিন্ট (অ্যাডমিন)
+const N=v=>Number(v)||0,openD=new Set(),tk=v=>'৳'+(Math.round(N(v)*100)/100);
+function calc(o){const it=o.items||[],sub=N(o.subtotal)||it.reduce((s,i)=>s+N(i.price)*N(i.qty),0),rows=[['পণ্যের মোট',sub]];let t=sub;
+const sav=it.reduce((s,i)=>s+(N(i.mrp)>N(i.price)?(N(i.mrp)-N(i.price))*N(i.qty):0),0);
+const ds=Array.isArray(o.discounts)&&o.discounts.length?o.discounts:(N(o.discount)>0?[{label:'কুপন',code:o.couponCode,amount:o.discount}]:[]);
+ds.forEach(d=>{rows.push([(d.label||'ছাড়')+(d.code?' ('+d.code+')':''),-N(d.amount)]);t-=N(d.amount)});
+const dc=o.deliveryCharge==null?30:N(o.deliveryCharge);rows.push(['ডেলিভারি চার্জ',dc,dc?0:'ফ্রি']);t+=dc;
+if(N(o.vat)){rows.push(['ভ্যাট',N(o.vat)]);t+=N(o.vat)}
+['walletUsed','pointsUsed'].forEach(k=>{if(N(o[k])){rows.push([k=='walletUsed'?'ওয়ালেট থেকে':'পয়েন্ট থেকে',-N(o[k])]);t-=N(o[k])}});
+return{rows,sav,calc:t,stored:N(o.totalAmount)}}
+const rowH=r=>`<div class="sp"><span>${E(r[0])}</span><b>${r[2]||(r[1]<0?'−':'')+tk(Math.abs(r[1]))}</b></div>`;
+function detailsHtml(o){const c=calc(o),it=o.items||[];
+return `<details ${openD.has(o.id)?'open':''} ontoggle="tg('${o.id}',this.open)"><summary style="cursor:pointer;color:#6d28d9;font-weight:700;padding:6px 0">📦 পণ্যের বিস্তারিত (${it.length}টি)</summary>
+${it.map(i=>`<div class="sp" style="border-bottom:1px dashed #e5e7eb;padding:3px 0"><span>${E(i.name)}<br><small>${tk(i.price)} × ${N(i.qty)}</small></span><b>${tk(N(i.price)*N(i.qty))}</b></div>`).join('')||'<small>কোনো পণ্য নেই</small>'}
+<div style="margin-top:6px">${c.rows.map(rowH).join('')}<div class="sp" style="border-top:1px solid #d1d5db;margin-top:4px;padding-top:4px"><b>সর্বমোট</b><b>${tk(c.stored)}</b></div></div>
+${c.sav?`<small>🎉 পণ্যে সাশ্রয়: ${tk(c.sav)}</small><br>`:''}${Math.abs(c.calc-c.stored)>.5?`<small style="color:#dc2626">⚠ হিসাব মেলেনি (গণনা ${tk(c.calc)}, সেভ করা ${tk(c.stored)})</small><br>`:''}
+${o.note?`<small>📝 ${E(o.note)}</small><br>`:''}<button class="s" onclick="printMemo('${o.id}')">🖨 মেমো প্রিন্ট</button></details>`}
+window.tg=(id,v)=>{v?openD.add(id):openD.delete(id)};
+window.setSt=async(id,st)=>{try{await updateDoc(doc(db,'orders',id),st=='Processing'?{status:'Processing',processingAt:iso()}:{status:st})}catch(e){alert(e.message)}};
+window.adRet=async id=>{const r=prompt('ফেরতের কারণ লিখুন');if(r===null)return;if(!r.trim())return alert('কারণ লিখুন');if(!confirm('অর্ডারটি Returned করবেন?'))return;
+try{await updateDoc(doc(db,'orders',id),{status:'Returned',returnReason:r.trim().slice(0,200),returnedAt:iso()})}catch(e){alert(e.message)}};
+window.cancelO=async id=>{if(confirm('অর্ডার বাতিল করবেন?'))try{await updateDoc(doc(db,'orders',id),{status:'Cancelled',cancelledAt:iso()})}catch(e){alert(e.message)}};
+window.printMemo=id=>{const o=orders.find(x=>x.id==id);if(!o)return;const c=calc(o),it=o.items||[],w=window.open('','_blank');if(!w)return alert('পপআপ ব্লক করা আছে, অনুমতি দিন');
+w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${E(o.orderId||o.id)}</title><style>@page{size:80mm auto;margin:4mm}body{font:12px Arial,sans-serif;width:72mm;margin:0 auto;color:#000}h3,p{margin:2px 0;text-align:center}table{width:100%;border-collapse:collapse;margin:6px 0}td,th{padding:3px 0;border-bottom:1px dashed #999;text-align:left;vertical-align:top}.r{text-align:right}.s{display:flex;justify-content:space-between}.b{border-top:2px solid #000;margin-top:4px;padding-top:4px;font-weight:700;font-size:14px}.n{border:1px solid #000;padding:4px;margin-top:6px;text-align:center;font-weight:700}@media print{button{display:none}}</style></head><body>
+<h3>Laland Express</h3><p>ডেলিভারি মেমো</p><p><b>${E(o.orderId||o.id)}</b></p><p>${o.createdAt?E(new Date(o.createdAt).toLocaleString()):''}</p><hr>
+<p style="text-align:left"><b>গ্রাহক:</b> ${E(o.userName)}<br><b>মোবাইল:</b> ${E(o.userPhone)}<br><b>ঠিকানা:</b> ${E(o.address)}${o.note?'<br><b>নোট:</b> '+E(o.note):''}${o.riderName?'<br><b>রাইডার:</b> '+E(o.riderName)+(o.riderPhone?' ('+E(o.riderPhone)+')':''):''}</p>
+<table><tr><th>পণ্য</th><th class="r">পরিমাণ</th><th class="r">টাকা</th></tr>${it.map(i=>`<tr><td>${E(i.name)}<br>${tk(i.price)}</td><td class="r">${N(i.qty)}</td><td class="r">${tk(N(i.price)*N(i.qty))}</td></tr>`).join('')}</table>
+${c.rows.map(r=>`<div class="s"><span>${E(r[0])}</span><span>${r[2]||(r[1]<0?'−':'')+tk(Math.abs(r[1]))}</span></div>`).join('')}
+<div class="s b"><span>সর্বমোট</span><span>${tk(c.stored)}</span></div><div class="n">গ্রাহকের কাছ থেকে নিতে হবে: ${tk(c.stored)}</div>
+<p style="margin-top:8px">☐ পণ্য বুঝে নিয়েছি (রাইডারের স্বাক্ষর): ________</p><p>ধন্যবাদ!</p><button onclick="print()" style="width:100%;padding:10px;margin-top:8px">🖨 প্রিন্ট</button></body></html>`);
+w.document.close();setTimeout(()=>w.print(),400)};
+</script></body></html>
