@@ -27,7 +27,7 @@ jobs:
         run: npm install
 
       - name: Sync Capacitor Android
-        run: npx cap sync android
+        run: npx --yes @capacitor/cli sync android
 
       - name: Build APK with Gradle
         run: |
