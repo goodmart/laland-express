@@ -26,8 +26,13 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Sync Capacitor Android
-        run: npx cap sync android
+      - name: Sync or Add Android Platform
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          else
+            npx cap sync android
+          fi
 
       - name: Build APK with Gradle
         run: |
