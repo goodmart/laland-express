@@ -26,11 +26,13 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Clean and Build APK with Gradle
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Build APK with Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew clean
           ./gradlew assembleDebug
 
       - name: Upload APK Artifact
