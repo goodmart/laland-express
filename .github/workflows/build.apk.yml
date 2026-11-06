@@ -26,6 +26,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
       - name: Grant Execute Permission for Gradle
         run: chmod +x android/gradlew
 
