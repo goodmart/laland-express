@@ -1,9 +1,5 @@
 {
   "appId": "com.basket.app",
   "appName": "basket",
-  "webDir": "www",
-  "server": {
-    "url": "http://www.basket.bd/admin/rider.html",
-    "cleartext": true
-  }
+  "webDir": "www"
 }
