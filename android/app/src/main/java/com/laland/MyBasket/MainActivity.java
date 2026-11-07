@@ -1,4 +1,4 @@
-package com.my.basket;
+package com.laland.MyBasket;
 
 import com.getcapacitor.BridgeActivity;
 
