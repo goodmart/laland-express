@@ -87,7 +87,7 @@ const startRing=()=>{stopRing();beep();ringT=setInterval(beep,1500)},stopRing=()
 // ---- auth + role routing
 $('lf').onsubmit=async e=>{e.preventDefault();const v=$('u').value.trim(),em=v.includes('@')?v:v.replace(/\D/g,'')+'@lalandrider.com';
 try{await signInWithEmailAndPassword(auth,em,$('p').value)}catch(x){alert('নম্বর/ইমেইল বা পাসওয়ার্ড ভুল')}};
-window.logout=()=>signOut(auth);
+window.logout=async()=>{try{if(!isAd&&me&&me.id)await updateDoc(doc(db,'riders',me.id),{fcmToken:''})}catch(e){}signOut(auth)};
 onAuthStateChanged(auth,async u=>{
 unsub.forEach(f=>f());unsub=[];hideOffer();['login','rider','admin'].forEach(i=>$(i).hidden=true);$('hd').hidden=!u;
 if(!u){$('login').hidden=false;return}
@@ -97,8 +97,19 @@ catch(x){alert('এই অ্যাকাউন্টের অনুমতি �
 const snap=(q,f)=>unsub.push(onSnapshot(q,f,e=>console.error(e)));
 const list=s=>s.docs.map(d=>({id:d.id,...d.data()}));
 
+// ---- FCM পুশ নোটিফিকেশন (শুধু Android অ্যাপে চলে; ব্রাউজারে কিছুই করে না)
+const PN=()=>{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.PushNotifications};
+const saveTok=async t=>{try{if(me&&me.id&&me.fcmToken!==t)await updateDoc(doc(db,'riders',me.id),{fcmToken:t,fcmAt:iso()})}catch(e){console.error(e)}};
+async function initPush(){const P=PN();if(!P)return;
+try{let p=await P.checkPermissions();if(p.receive!='granted')p=await P.requestPermissions();if(p.receive!='granted')return;
+await P.createChannel({id:'offers',name:'ডেলিভারি অফার',description:'নতুন ডেলিভারি অফারের রিং',importance:5,visibility:1,vibration:true,lights:true,sound:'offer.wav'});
+await P.removeAllListeners();
+P.addListener('registration',t=>saveTok(t.value));
+P.addListener('registrationError',e=>console.error('push',e));
+await P.register()}catch(e){console.error('push',e)}}
+
 // ================= RIDER =================
-function startRider(){isAd=false;$('rider').hidden=false;$('who').textContent='🏍 '+me.name;
+function startRider(){isAd=false;initPush();$('rider').hidden=false;$('who').textContent='🏍 '+me.name;
 snap(doc(db,'riders',me.id),s=>{me={id:s.id,...s.data()};$('cash').textContent='৳'+(me.cashBalance||0);$('earn').textContent='৳'+(me.earningsBalance||0);renderR()});
 snap(query(collection(db,'orders'),where('riderPhone','==',me.phone)),s=>{orders=list(s);renderR();checkOffer()});
 snap(query(collection(db,'cash_settlements'),where('riderPhone','==',me.phone)),s=>{stls=list(s).sort((a,b)=>(b.createdAt||'')<(a.createdAt||'')?-1:1);renderR()})}
@@ -125,7 +136,8 @@ c.innerHTML=orders.filter(o=>o.offerState!='Offered'&&!FIN.includes(o.status)).m
 function checkOffer(){const o=orders.find(x=>x.offerState=='Offered'&&!FIN.includes(x.status));if(!o){hideOffer();return}
 if(offerId==o.id)return;offerId=o.id;
 $('offT').innerHTML=`<p><b>${E(o.orderId||o.id)}</b> · ৳${o.totalAmount||0}</p><p>📍 ${E(o.address)}</p><p>👤 ${E(o.userName)}</p>`;
-$('offer').hidden=false;startRing();let t=60;$('cd').textContent=t;clearInterval(cdT);
+const age=(Date.now()-new Date(o.offeredAt).getTime())/1000;let t=age>=0&&age<60?60-Math.floor(age):60;
+$('offer').hidden=false;startRing();$('cd').textContent=t;clearInterval(cdT);
 cdT=setInterval(()=>{$('cd').textContent=--t;if(t<=0)respond(false)},1000)}
 function hideOffer(){offerId=null;$('offer').hidden=true;stopRing();clearInterval(cdT)}
 window.respond=async ok=>{const id=offerId;hideOffer();if(!id)return;
