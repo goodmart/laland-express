@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "315462688826",
+    "firebase_url": "https://laland-express-default-rtdb.firebaseio.com",
+    "project_id": "laland-express",
+    "storage_bucket": "laland-express.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315462688826:android:84ea76d040a78f7f201503",
+        "android_client_info": {
+          "package_name": "com.laland.MyBasket"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315462688826-ru1n8luqhp7jaa3eodgk1gjr9dtf3j3p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9X3V3GvGudmZk5h49GN_UyKb8fHDjf9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "315462688826-ru1n8luqhp7jaa3eodgk1gjr9dtf3j3p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
