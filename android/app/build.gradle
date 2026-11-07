@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.my.basket"
+    namespace = "com.laland.MyBasket"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.my.basket"
+        applicationId "com.laland.MyBasket"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
